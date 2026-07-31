@@ -9,6 +9,7 @@ $consultas = [];
 $resultados_busca = [];
 $busca_realizada = false;
 
+// 1. Processar salvamento do prontuário (inserção ou atualização)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'salvar_prontuario') {
     $id_animal_prontuario = (int)($_POST['id_animal'] ?? 0);
     $alergias = trim($_POST['alergias'] ?? '');
@@ -18,11 +19,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $mensagem_erro = "Identificação do animal inválida.";
     } else {
         try {
+            // Verificar se o prontuário já existe
             $stmt_check = $pdo->prepare("SELECT id_protuario FROM prontuario WHERE id_animal = :id_animal");
             $stmt_check->execute([':id_animal' => $id_animal_prontuario]);
             $existente = $stmt_check->fetch(PDO::FETCH_ASSOC);
 
             if ($existente) {
+                // Atualizar
                 $stmt_update = $pdo->prepare("UPDATE prontuario SET alergias = :alergias, observacoes = :observacoes WHERE id_animal = :id_animal");
                 $stmt_update->execute([
                     ':alergias' => substr($alergias, 0, 255),
@@ -31,6 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 ]);
                 $mensagem_sucesso = "Prontuário médico atualizado com sucesso!";
             } else {
+                // Inserir
                 $stmt_insert = $pdo->prepare("INSERT INTO prontuario (alergias, observacoes, id_animal) VALUES (:alergias, :observacoes, :id_animal)");
                 $stmt_insert->execute([
                     ':alergias' => substr($alergias, 0, 255),
@@ -40,6 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                 $mensagem_sucesso = "Prontuário médico criado com sucesso!";
             }
 
+            // Definir o animal ID para carregar a página com o histórico atualizado
             $_GET['id_animal'] = $id_animal_prontuario;
 
         } catch (PDOException $e) {
@@ -48,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
+// 2. Processar busca por termo de texto ou ID
 $termo_busca = trim($_GET['busca'] ?? $_POST['busca'] ?? '');
 if (!empty($termo_busca)) {
     $busca_realizada = true;
@@ -68,6 +74,7 @@ if (!empty($termo_busca)) {
         
         $resultados_busca = $stmt_busca->fetchAll(PDO::FETCH_ASSOC);
 
+        // Se encontrou exatamente 1 resultado, define como pet selecionado diretamente
         if (count($resultados_busca) === 1) {
             $_GET['id_animal'] = $resultados_busca[0]['id_animal'];
         }
@@ -76,9 +83,11 @@ if (!empty($termo_busca)) {
     }
 }
 
+// 3. Carregar dados do pet selecionado
 $id_animal = (int)($_GET['id_animal'] ?? $_POST['id_animal'] ?? 0);
 if ($id_animal > 0) {
     try {
+        // Obter dados do animal e tutor
         $stmt_pet = $pdo->prepare("
             SELECT a.id_animal, a.nome AS pet_nome, a.especie, a.idade, a.peso, a.id_cliente,
                    c.nome AS tutor_nome, c.telefone AS tutor_telefone, c.email AS tutor_email
@@ -90,10 +99,12 @@ if ($id_animal > 0) {
         $pet_selecionado = $stmt_pet->fetch(PDO::FETCH_ASSOC);
 
         if ($pet_selecionado) {
+            // Obter prontuário
             $stmt_pront = $pdo->prepare("SELECT id_protuario, alergias, observacoes FROM prontuario WHERE id_animal = :id_animal");
             $stmt_pront->execute([':id_animal' => $id_animal]);
             $prontuario = $stmt_pront->fetch(PDO::FETCH_ASSOC);
 
+            // Obter consultas
             $stmt_consultas = $pdo->prepare("
                 SELECT c.data_consulta, c.diagnostico, c.valor, v.nome AS vet_nome, v.crmv AS vet_crmv
                 FROM consulta c
@@ -111,6 +122,7 @@ if ($id_animal > 0) {
     }
 }
 
+// 4. Buscar todos os pets para o dropdown de seleção rápida
 try {
     $stmt_lista = $pdo->query("
         SELECT a.id_animal, a.nome AS pet_nome, a.especie, c.nome AS tutor_nome 
@@ -131,6 +143,65 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Histórico Médico - Clínica Veterinária</title>
     <link rel="stylesheet" href="../style.css">
+    <style>
+        .busca-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            background-color: var(--background);
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+        }
+        .busca-coluna {
+            flex: 1 1 280px;
+        }
+        .info-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .info-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px dashed var(--border);
+            display: flex;
+            justify-content: space-between;
+        }
+        .info-list li:last-child {
+            border-bottom: none;
+        }
+        .info-list span.rotulo {
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+        .info-list span.valor {
+            color: var(--text-main);
+        }
+        .prontuario-card {
+            background-color: var(--background);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            height: 100%;
+        }
+        .badge-prontuario {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        .badge-existente {
+            background-color: var(--success-bg);
+            color: var(--success);
+        }
+        .badge-ausente {
+            background-color: var(--error-bg);
+            color: var(--error);
+        }
+    </style>
 </head>
 <body>
 
@@ -139,7 +210,7 @@ try {
         <a href="../index.php" class="btn-navegacao">Voltar para o Início</a>
     </header>
 
-    <main class="container-formulario-wide">
+    <main class="container-formulario" style="max-width: 1100px;">
         <div class="form-box">
             <h2>Histórico Médico do Pet</h2>
 
@@ -151,13 +222,15 @@ try {
                 <div class="alerta alerta-erro"><?= htmlspecialchars($mensagem_erro) ?></div>
             <?php endif; ?>
 
+            <!-- Formulários de Busca -->
             <div class="busca-container">
+                <!-- Dropdown de Seleção Rápida -->
                 <div class="busca-coluna">
                     <form action="historico_pet.php" method="GET">
                         <div class="form-grupo" style="margin-bottom: 0;">
                             <label for="id_animal_select">Selecionar Pet Cadastrado</label>
                             <select id="id_animal_select" name="id_animal" onchange="this.form.submit()">
-                                <option value="">Escolha um pet na lista</option>
+                                <option value="">-- Escolha um pet na lista --</option>
                                 <?php foreach ($lista_pets as $p): ?>
                                     <option value="<?= $p['id_animal'] ?>" <?= ($id_animal === (int)$p['id_animal']) ? 'selected' : '' ?>>
                                         <?= htmlspecialchars($p['pet_nome']) ?> (<?= htmlspecialchars($p['especie']) ?>) - Tutor: <?= htmlspecialchars($p['tutor_nome']) ?>
@@ -168,7 +241,21 @@ try {
                     </form>
                 </div>
 
+                <!-- Busca por Texto/ID -->
+                <div class="busca-coluna">
+                    <form action="historico_pet.php" method="GET">
+                        <div class="form-grupo" style="margin-bottom: 0; display: flex; gap: 0.5rem; align-items: flex-end;">
+                            <div style="flex-grow: 1;">
+                                <label for="busca">Pesquisar por Nome ou ID</label>
+                                <input type="text" id="busca" name="busca" placeholder="Digite o ID ou Nome do pet..." value="<?= htmlspecialchars($termo_busca) ?>">
+                            </div>
+                            <button type="submit" class="btn-enviar" style="width: auto; padding: 0.75rem 1.5rem; margin-bottom: 0.05rem;">Buscar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
 
+            <!-- Resultados de múltiplos matches da busca por texto -->
             <?php if ($busca_realizada && count($resultados_busca) > 1 && !$pet_selecionado): ?>
                 <div style="margin-bottom: 2rem;">
                     <h3 style="color: var(--primary); font-size: 1.1rem; margin-bottom: 1rem;">Múltiplos pets encontrados. Selecione um abaixo:</h3>
@@ -201,14 +288,16 @@ try {
                 <div class="alerta alerta-erro">Nenhum pet encontrado para o termo "<?= htmlspecialchars($termo_busca) ?>".</div>
             <?php endif; ?>
 
+            <!-- Dados do Histórico (Exibidos se um Pet for selecionado) -->
             <?php if ($pet_selecionado): ?>
                 <hr style="border: 0; border-top: 1px solid var(--border); margin: 2rem 0;">
 
-                <div class="secoes-f
+                <div class="secoes-form">
+                    <!-- Coluna 1: Informações Cadastrais (Tutor e Animal) -->
                     <div class="secao-coluna">
                         <h3>Ficha Cadastral</h3>
                         
-                        <div class="prontuario-card">
+                        <div class="prontuario-card" style="margin-bottom: 1.5rem;">
                             <h4 style="margin-bottom: 0.75rem; color: var(--text-main); font-size: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.25rem;">Dados do Tutor</h4>
                             <ul class="info-list">
                                 <li>
@@ -253,8 +342,11 @@ try {
                         </div>
                     </div>
 
+                    <!-- Coluna 2: Prontuário Médico (Alergias e Observações) -->
                     <div class="secao-coluna">
                         <h3>Prontuário Clínico</h3>
+                        
+                        <!-- Visualização do Prontuário -->
                         <div id="prontuario-exibicao" class="prontuario-card" style="display: block;">
                             <?php if ($prontuario): ?>
                                 <span class="badge-prontuario badge-existente">✓ Prontuário Ativo</span>
@@ -274,6 +366,7 @@ try {
                             <?php endif; ?>
                         </div>
 
+                        <!-- Formulário Inline de Edição/Criação do Prontuário -->
                         <div id="prontuario-formulario" class="prontuario-card" style="display: none;">
                             <h4 style="margin-bottom: 1rem; color: var(--primary); font-size: 1rem;"><?= $prontuario ? 'Editar Prontuário' : 'Novo Prontuário' ?></h4>
                             <form action="historico_pet.php" method="POST">
@@ -282,12 +375,12 @@ try {
                                 
                                 <div class="form-grupo">
                                     <label for="alergias">Alergias</label>
-                                    <textarea id="alergias" name="alergias" rows="3" maxlength="255" placeholder="Informe alergias a medicamentos, alimentos, etc. (máx. 255 caracteres)"><?= htmlspecialchars($prontuario['alergias'] ?? '') ?></textarea>
+                                    <textarea id="alergias" name="alergias" rows="3" maxlength="255" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 0.9rem; font-family: inherit; color: var(--text-main); background-color: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); resize: vertical;" placeholder="Informe alergias a medicamentos, alimentos, etc. (máx. 255 caracteres)"><?= htmlspecialchars($prontuario['alergias'] ?? '') ?></textarea>
                                 </div>
 
                                 <div class="form-grupo">
                                     <label for="observacoes">Observações Gerais</label>
-                                    <textarea id="observacoes" name="observacoes" rows="4" maxlength="255" placeholder="Insira outras observações sobre o comportamento ou cuidados médicos do animal..."><?= htmlspecialchars($prontuario['observacoes'] ?? '') ?></textarea>
+                                    <textarea id="observacoes" name="observacoes" rows="4" maxlength="255" style="width: 100%; padding: 0.5rem 0.75rem; font-size: 0.9rem; font-family: inherit; color: var(--text-main); background-color: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); resize: vertical;" placeholder="Insira outras observações sobre o comportamento ou cuidados médicos do animal..."><?= htmlspecialchars($prontuario['observacoes'] ?? '') ?></textarea>
                                 </div>
 
                                 <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
@@ -298,6 +391,8 @@ try {
                         </div>
                     </div>
                 </div>
+
+                <!-- Histórico de Consultas -->
                 <div style="margin-top: 3rem;">
                     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; margin-bottom: 1.5rem;">
                         <h3 style="margin-bottom: 0; color: var(--text-main);">Consultas Realizadas</h3>

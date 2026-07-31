@@ -144,7 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <div class="form-grupo">
                     <label for="diagnostico">Diagnóstico</label>
-                    <textarea id="diagnostico" name="diagnostico" rows="4" maxlength="250" placeholder="Insira o diagnóstico clínico (máx. 250 caracteres)..." required><?= htmlspecialchars($diagnostico) ?></textarea>
+                    <textarea id="diagnostico" name="diagnostico" rows="4" maxlength="250" style="width: 100%; padding: 0.75rem 1rem; font-size: 0.95rem; font-family: inherit; color: var(--text-main); background-color: var(--background); border: 1px solid var(--border); border-radius: var(--radius-md); transition: all 0.2s ease; resize: vertical;" placeholder="Insira o diagnóstico clínico (máx. 250 caracteres)..." required><?= htmlspecialchars($diagnostico) ?></textarea>
                 </div>
                 <br>
                 <button type="submit" class="btn-enviar">Registrar Consulta</button>

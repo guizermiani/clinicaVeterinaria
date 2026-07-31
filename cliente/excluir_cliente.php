@@ -21,5 +21,5 @@ if (isset($_GET['id_cliente']) || isset($_POST['id_cliente'])) {
     }
 }
 
-header("Location: ../consulta/consultar_cliente.php");
+header("Location: ../consulta_dados/consultar_cliente.php");
 exit;

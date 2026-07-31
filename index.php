@@ -25,7 +25,7 @@
                     <p>Adicionar novo tutor no banco de dados com CPF, telefone e email.</p>
                 </a>
 
-                <a href="consulta/consultar_cliente.php" class="card-opcao">
+                <a href="consulta_dados/consultar_cliente.php" class="card-opcao">
                     <h3>Consultar Clientes</h3>
                     <p>Visualizar, alterar dados ou remover tutores cadastrados.</p>
                 </a>
@@ -35,7 +35,7 @@
                     <p>Registrar um novo animal de estimação e vinculá-lo a um tutor cadastrado.</p>
                 </a>
 
-                <a href="consulta/consultar_pet.php" class="card-opcao">
+                <a href="consulta_dados/consultar_pet.php" class="card-opcao">
                     <h3>Consultar Pets</h3>
                     <p>Visualizar, alterar dados ou remover pets cadastrados.</p>
                 </a>
@@ -45,9 +45,19 @@
                     <p>Registrar um novo veterinário.</p>
                 </a>
 
-                <a href="consulta/consultar_veterinario.php" class="card-opcao">
+                <a href="consulta_dados/consultar_veterinario.php" class="card-opcao">
                     <h3>Consultar Veterinários</h3>
                     <p>Visualizar, alterar dados ou remover veterinários cadastrados.</p>
+                </a>
+
+                <a href="consulta/agendar_consulta.php" class="card-opcao">
+                    <h3>Agendar Consulta</h3>
+                    <p>Registrar nova consulta informando o pet, veterinário, diagnóstico e valor.</p>
+                </a>
+
+                <a href="pet/historico_pet.php" class="card-opcao">
+                    <h3>Histórico do Pet</h3>
+                    <p>Visualizar dados do tutor, animal, prontuário e histórico de consultas.</p>
                 </a>
             </div>
         </div>

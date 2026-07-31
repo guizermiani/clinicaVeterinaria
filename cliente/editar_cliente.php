@@ -80,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <header>
         <h1>Editar Cliente</h1>
-        <a href="../consulta/consultar_cliente.php" class="btn-navegacao">Voltar para o Início</a>
+        <a href="../consulta_dados/consultar_cliente.php" class="btn-navegacao">Voltar para o Início</a>
     </header>
 
     <main class="container-formulario">

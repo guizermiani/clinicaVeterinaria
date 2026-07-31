@@ -21,5 +21,5 @@ if (isset($_GET['id_veterinario']) || isset($_POST['id_veterinario'])) {
     }
 }
 
-header("Location: ../consulta/consultar_veterinario.php");
+header("Location: ../consulta_dados/consultar_veterinario.php");
 exit;

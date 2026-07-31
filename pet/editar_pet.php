@@ -90,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <header>
         <h1>Editar Pet</h1>
-        <a href="../consulta/consultar_pet.php" class="btn-navegacao">Voltar para a Consulta</a>
+        <a href="../consulta_dados/consultar_pet.php" class="btn-navegacao">Voltar para a Consulta</a>
     </header>
 
     <main class="container-formulario">

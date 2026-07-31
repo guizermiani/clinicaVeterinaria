@@ -314,3 +314,72 @@ header h1 {
     padding-bottom: 0.5rem;
 }
 
+/* Estilos específicos para a página de Histórico do Pet */
+.busca-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    background-color: var(--background);
+    padding: 1.5rem;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+}
+
+.busca-coluna {
+    flex: 1 1 280px;
+}
+
+.info-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.info-list li {
+    padding: 0.5rem 0;
+    border-bottom: 1px dashed var(--border);
+    display: flex;
+    justify-content: space-between;
+}
+
+.info-list li:last-child {
+    border-bottom: none;
+}
+
+.info-list span.rotulo {
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+.info-list span.valor {
+    color: var(--text-main);
+}
+
+.prontuario-card {
+    background-color: var(--background);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    height: 100%;
+}
+
+.badge-prontuario {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.badge-existente {
+    background-color: var(--success-bg);
+    color: var(--success);
+}
+
+.badge-ausente {
+    background-color: var(--error-bg);
+    color: var(--error);
+}
+

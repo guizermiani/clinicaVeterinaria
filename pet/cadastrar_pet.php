@@ -14,16 +14,25 @@ try {
     die("Erro de conexão: " . $e->getMessage());
 }
 
-$stmt = $pdo->query("SELECT id_cliente, nome FROM cliente ORDER BY nome");
-$clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+if (isset($_GET['cliente_cadastrado']) && $_GET['cliente_cadastrado'] == 1) {
+    $mensagem_sucesso = "Cliente cadastrado com sucesso! Preencha os dados abaixo para cadastrar seu pet.";
+}
+
+try {
+    $stmt = $pdo->query("SELECT id_cliente, nome FROM cliente ORDER BY nome");
+    $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    $mensagem_erro = "Erro ao buscar clientes: " . $e->getMessage();
+    $clientes = [];
+}
+
+$id_cliente = $_GET['id_cliente'] ?? $_POST['id_cliente'] ?? '';
+$nome = trim($_POST['nome'] ?? '');
+$especie = trim($_POST['especie'] ?? '');
+$idade = trim($_POST['idade'] ?? '');
+$peso = trim($_POST['peso'] ?? '');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $id_cliente = $_POST['id_cliente'] ?? '';
-    $nome = trim($_POST['nome'] ?? '');
-    $especie = trim($_POST['especie'] ?? '');
-    $idade = trim($_POST['idade'] ?? '');
-    $peso = trim($_POST['peso'] ?? '');
-
     if (empty($id_cliente) || empty($nome) || empty($especie) || empty($idade) || empty($peso)) {
         $mensagem_erro = "Por favor, preencha todos os campos do formulário.";
     } else {
@@ -41,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
 
             $mensagem_sucesso = "Pet cadastrado com sucesso e vinculado ao tutor!";
-
+            
             $id_cliente = $nome = $especie = $idade = $peso = "";
 
         } catch (PDOException $e) {
@@ -57,13 +66,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastrar Pet - Clínica Veterinária</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../style.css">
 </head>
 <body>
 
     <header>
         <h1>Clínica Veterinária</h1>
-        <a href="index.php" class="btn-navegacao">Voltar para o Início</a>
+        <a href="../index.php" class="btn-navegacao">Voltar para o Início</a>
     </header>
 
     <main class="container-formulario">
@@ -80,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <?php if (empty($clientes)): ?>
                 <div class="alerta alerta-erro">
-                    Nenhum cliente cadastrado ainda. <a href="cadastrar_cliente.php">Cadastre um tutor primeiro</a>.
+                    Nenhum cliente cadastrado ainda. <a href="../cliente/cadastrar_cliente.php">Cadastre um tutor primeiro</a>.
                 </div>
             <?php else: ?>
 
@@ -90,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <select id="id_cliente" name="id_cliente" required>
                         <option value="">-- Selecione o tutor --</option>
                         <?php foreach ($clientes as $c): ?>
-                            <option value="<?= $c['id_cliente'] ?>" <?= (($id_cliente ?? '') == $c['id_cliente']) ? 'selected' : '' ?>>
+                            <option value="<?= $c['id_cliente'] ?>" <?= ($id_cliente == $c['id_cliente']) ? 'selected' : '' ?>>
                                 <?= htmlspecialchars($c['nome']) ?>
                             </option>
                         <?php endforeach; ?>
@@ -99,22 +108,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <div class="form-grupo">
                     <label for="nome">Nome do Pet</label>
-                    <input type="text" id="nome" name="nome" value="<?= htmlspecialchars($nome ?? '') ?>">
+                    <input type="text" id="nome" name="nome" value="<?= htmlspecialchars($nome) ?>" required>
                 </div>
 
                 <div class="form-grupo">
                     <label for="especie">Espécie</label>
-                    <input type="text" id="especie" name="especie" placeholder="Ex: Cão, Gato, Ave" value="<?= htmlspecialchars($especie ?? '') ?>">
+                    <input type="text" id="especie" name="especie" placeholder="Ex: Cão, Gato, Ave" value="<?= htmlspecialchars($especie) ?>" required>
                 </div>
 
                 <div class="form-grupo">
-                    <label for="idade">Idade (anos)</label>
-                    <input type="number" id="idade" name="idade" value="<?= htmlspecialchars($idade ?? '') ?>">
+                    <label for="pet_idade">Idade (anos)</label>
+                    <input type="number" id="idade" name="idade" value="<?= htmlspecialchars($idade) ?>" required>
                 </div>
 
                 <div class="form-grupo">
-                    <label for="peso">Peso (kg)</label>
-                    <input type="number" step="0.1" id="peso" name="peso" value="<?= htmlspecialchars($peso ?? '') ?>">
+                    <label for="pet_peso">Peso (kg)</label>
+                    <input type="number" step="0.1" id="peso" name="peso" value="<?= htmlspecialchars($peso) ?>" required>
                 </div>
                 <br>
                 <button type="submit" class="btn-enviar">Salvar Pet</button>

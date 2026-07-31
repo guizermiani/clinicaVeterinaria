@@ -8,8 +8,8 @@ try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
-    $stmt = $pdo->query("SELECT id_cliente, nome, cpf, telefone, email FROM cliente ORDER BY id_cliente DESC");
-    $cliente = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt = $pdo->query("SELECT id_cliente, id_animal, nome, especie, idade, peso FROM animal ORDER BY id_cliente DESC");
+    $pet = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (PDOException $e) {
     die("Erro ao conectar ao banco de dados: " . $e->getMessage());
@@ -21,7 +21,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consultar Clientes - Clínica Veterinária</title>
+    <title>Consultar Pets - Clínica Veterinária</title>
     <link rel="stylesheet" href="../style.css">
 </head>
 <body>
@@ -33,33 +33,35 @@ try {
  
     <main class="container-formulario">
         <div class="form-box">
-            <h2>Clientes Cadastrados</h2>
+            <h2>Pets Cadastrados</h2>
  
-            <?php if (empty($cliente)): ?>
-                <p>Nenhum cliente cadastrado ainda.</p>
+            <?php if (empty($pet)): ?>
+                <p>Nenhum pet cadastrado ainda.</p>
             <?php else: ?>
  
             <table class="tabela-dados">
                 <thead>
                     <tr>
+                        <th>ID Tutor</th>
                         <th>Nome</th>
-                        <th>CPF</th>
-                        <th>Telefone</th>
-                        <th>E-mail</th>
+                        <th>Espécie</th>
+                        <th>Idade</th>
+                        <th>Peso</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($cliente as $c): ?>
+                    <?php foreach ($pet as $p): ?>
                     <tr>
-                        <td><?= htmlspecialchars($c['nome']) ?></td>
-                        <td><?= htmlspecialchars($c['cpf']) ?></td>
-                        <td><?= htmlspecialchars($c['telefone']) ?></td>
-                        <td><?= htmlspecialchars($c['email']) ?></td>
+                        <td><?= htmlspecialchars($p['id_cliente']) ?></td>
+                        <td><?= htmlspecialchars($p['nome']) ?></td>
+                        <td><?= htmlspecialchars($p['especie']) ?></td>
+                        <td><?= htmlspecialchars($p['idade']) ?></td>
+                        <td><?= htmlspecialchars($p['peso']) ?></td>
                         <td>
-                            <a href="../cliente/editar_cliente.php?id_cliente=<?= $c['id_cliente'] ?>">Editar</a>
+                            <a href="../pet/editar_pet.php?id_animal=<?= $p['id_animal'] ?>">Editar</a>
                         </td>
                         <td>
-                            <a href="../cliente/excluir_cliente.php?id_cliente=<?= $c['id_cliente'] ?>">Excluir</a>
+                            <a href="../pet/excluir_pet.php?id_animal=<?= $p['id_animal'] ?>">Excluir</a>
                         </td>
                     </tr>
                     <?php endforeach; ?>

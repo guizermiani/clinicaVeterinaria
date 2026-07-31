@@ -8,8 +8,8 @@ try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
-    $stmt = $pdo->query("SELECT id_cliente, nome, cpf, telefone, email FROM cliente ORDER BY id_cliente DESC");
-    $cliente = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt = $pdo->query("SELECT id_veterinario, nome, telefone, crmv, email FROM veterinario ORDER BY id_veterinario DESC");
+    $veterinario = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (PDOException $e) {
     die("Erro ao conectar ao banco de dados: " . $e->getMessage());
@@ -21,7 +21,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consultar Clientes - Clínica Veterinária</title>
+    <title>Consultar Veterinários - Clínica Veterinária</title>
     <link rel="stylesheet" href="../style.css">
 </head>
 <body>
@@ -33,33 +33,33 @@ try {
  
     <main class="container-formulario">
         <div class="form-box">
-            <h2>Clientes Cadastrados</h2>
+            <h2>Veterinários Cadastrados</h2>
  
-            <?php if (empty($cliente)): ?>
-                <p>Nenhum cliente cadastrado ainda.</p>
+            <?php if (empty($veterinario)): ?>
+                <p>Nenhum veterinário cadastrado ainda.</p>
             <?php else: ?>
  
             <table class="tabela-dados">
                 <thead>
                     <tr>
                         <th>Nome</th>
-                        <th>CPF</th>
                         <th>Telefone</th>
+                        <th>CRMV</th>
                         <th>E-mail</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($cliente as $c): ?>
+                    <?php foreach ($veterinario as $v): ?>
                     <tr>
-                        <td><?= htmlspecialchars($c['nome']) ?></td>
-                        <td><?= htmlspecialchars($c['cpf']) ?></td>
-                        <td><?= htmlspecialchars($c['telefone']) ?></td>
-                        <td><?= htmlspecialchars($c['email']) ?></td>
+                        <td><?= htmlspecialchars($v['nome']) ?></td>
+                        <td><?= htmlspecialchars($v['telefone']) ?></td>
+                        <td><?= htmlspecialchars($v['crmv']) ?></td>
+                        <td><?= htmlspecialchars($v['email']) ?></td>
                         <td>
-                            <a href="../cliente/editar_cliente.php?id_cliente=<?= $c['id_cliente'] ?>">Editar</a>
+                            <a href="../veterinario/editar_veterinario.php?id_veterinario=<?= $v['id_veterinario'] ?>">Editar</a>
                         </td>
                         <td>
-                            <a href="../cliente/excluir_cliente.php?id_cliente=<?= $c['id_cliente'] ?>">Excluir</a>
+                            <a href="../veterinario/excluir_veterinario.php?id_veterinario=<?= $v['id_veterinario'] ?>">Excluir</a>
                         </td>
                     </tr>
                     <?php endforeach; ?>

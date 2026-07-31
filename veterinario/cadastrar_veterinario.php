@@ -8,32 +8,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = '';     
 
     $nome = trim($_POST['nome'] ?? '');
-    $cpf = trim($_POST['cpf'] ?? '');
     $telefone = trim($_POST['telefone'] ?? '');
+    $crmv = trim($_POST['crmv'] ?? '');
     $email = trim($_POST['email'] ?? '');
 
-    if (empty($nome) || empty($cpf) || empty($telefone) || empty($email)) {
+    if (empty($nome) || empty($telefone) || empty($crmv) || empty($email)) {
         $mensagem_erro = "Por favor, preencha todos os campos do formulário.";
     } else {
         try {
             $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-            $sql = "INSERT INTO cliente (nome, cpf, telefone, email) 
-                    VALUES (:nome, :cpf, :telefone, :email)";
+            $sql = "INSERT INTO veterinario (nome, telefone, crmv, email) 
+                    VALUES (:nome, :telefone, :crmv, :email)";
             
             $stmt = $pdo->prepare($sql);
 
             $stmt->execute([
                 ':nome' => $nome,
-                ':cpf' => $cpf,
                 ':telefone' => $telefone,
+                ':crmv' => $crmv,
                 ':email' => $email,
             ]);
-
-            $id_cliente = $pdo->lastInsertId();
-            header("Location: ../pet/cadastrar_pet.php?id_cliente=" . $id_cliente . "&cliente_cadastrado=1");
-            exit;
 
         } catch (PDOException $e) {
             $mensagem_erro = "Erro ao salvar no banco de dados: " . $e->getMessage();
@@ -47,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastrar Cliente - Clinica Veterinária</title>
+    <title>Cadastrar Veterinário - Clinica Veterinária</title>
     <link rel="stylesheet" href="../style.css">
 </head>
 <body>
@@ -59,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <main class="container-formulario">
         <div class="form-box">
-            <h2>Cadastro de Novo Cliente</h2>
+            <h2>Cadastro de Novo Veterinário</h2>
 
             <?php if (!empty($mensagem_sucesso)): ?>
                 <div class="alerta alerta-sucesso"><?= htmlspecialchars($mensagem_sucesso) ?></div>
@@ -69,15 +65,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="alerta alerta-erro"><?= htmlspecialchars($mensagem_erro) ?></div>
             <?php endif; ?>
 
-            <form action="cadastrar_cliente.php" method="POST">
+            <form action="cadastrar_veterinario.php" method="POST">
                 <div class="form-grupo">
                     <label for="nome">Nome</label>
                     <input type="text" id="nome" name="nome" value="<?= htmlspecialchars($nome ?? '') ?>">
-                </div>
-
-                <div class="form-grupo">
-                    <label for="cpf">CPF</label>
-                    <input type="number" id="cpf" name="cpf" value="<?= htmlspecialchars($cpf ?? '') ?>">
                 </div>
 
                 <div class="form-grupo">
@@ -86,11 +77,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <div class="form-grupo">
+                    <label for="crmv">CRMV</label>
+                    <input type="number" id="crmv" name="crmv" value="<?= htmlspecialchars($crmv ?? '') ?>">
+                </div>
+
+                <div class="form-grupo">
                     <label for="email">E-mail</label>
                     <input type="text" id="email" name="email" value="<?= htmlspecialchars($email ?? '') ?>">
                 </div>
                 <br>
-                <button type="submit" class="btn-enviar">Salvar Cliente</button>
+                <button type="submit" class="btn-enviar">Salvar Veterinário</button>
             </form>
         </div>
     </main>

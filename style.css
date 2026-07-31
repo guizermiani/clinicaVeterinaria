@@ -79,6 +79,12 @@ header h1 {
     padding: 0 1.5rem;
 }
 
+.container-formulario-wide {
+    max-width: 1100px;
+    margin: 3rem auto;
+    padding: 0 1.5rem;
+}
+
 .form-box {
     background-color: var(--surface);
     border-radius: var(--radius-lg);
@@ -109,7 +115,8 @@ header h1 {
 }
 
 .form-grupo input,
-.form-grupo select {
+.form-grupo select,
+.form-grupo textarea {
     width: 100%;
     padding: 0.75rem 1rem;
     font-size: 0.95rem;
@@ -121,8 +128,14 @@ header h1 {
     transition: all 0.2s ease;
 }
 
+.form-grupo textarea {
+    resize: vertical;
+    min-height: 90px;
+}
+
 .form-grupo input:focus,
-.form-grupo select:focus {
+.form-grupo select:focus,
+.form-grupo textarea:focus {
     outline: none;
     border-color: var(--primary);
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
@@ -361,7 +374,26 @@ header h1 {
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: 1.5rem;
-    height: 100%;
+}
+
+.prontuario-card + .prontuario-card {
+    margin-top: 1.5rem;
+}
+
+.busca-inline {
+    display: flex;
+    gap: 0.5rem;
+    align-items: flex-end;
+}
+
+.busca-inline input {
+    flex-grow: 1;
+}
+
+.busca-inline .btn-enviar {
+    width: auto;
+    padding: 0.75rem 1.25rem;
+    flex-shrink: 0;
 }
 
 .badge-prontuario {

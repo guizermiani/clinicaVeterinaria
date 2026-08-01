@@ -1,10 +1,22 @@
 <?php
-require_once '../conexao.php';
+$host = 'localhost';
+$dbname = 'clinica_vet';
+$username = 'root';
+$password = '';
+
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    $stmt = $pdo->query("SELECT id_consulta FROM consulta WHERE id_consulta = 0");
+    
+} catch (PDOException $e) {
+    die("Erro ao conectar ao banco de dados: " . $e->getMessage());
+}
 
 $mensagem_sucesso = "";
 $mensagem_erro = "";
 
-// Buscar pets cadastrados com seus respectivos tutores
 try {
     $stmt_pets = $pdo->query("
         SELECT a.id_animal, a.nome AS pet_nome, a.especie, c.nome AS tutor_nome 
@@ -18,7 +30,6 @@ try {
     $pets = [];
 }
 
-// Buscar veterinários cadastrados
 try {
     $stmt_vets = $pdo->query("SELECT id_veterinario, nome, crmv FROM veterinario ORDER BY nome");
     $veterinarios = $stmt_vets->fetchAll(PDO::FETCH_ASSOC);
@@ -52,7 +63,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $mensagem_sucesso = "Consulta agendada e registrada com sucesso!";
             
-            // Limpar campos após sucesso, guardando o id_animal para o link do histórico
             $sucesso_id_animal = $id_animal;
             $id_animal = $id_veterinario = $diagnostico = $valor = "";
             $data_consulta = date('Y-m-d');

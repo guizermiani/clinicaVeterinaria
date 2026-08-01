@@ -1,4 +1,6 @@
 <?php
+
+/* conexao com o bd */
 $host = 'localhost';
 $dbname = 'clinica_vet';
 $username = 'root';
@@ -22,6 +24,7 @@ $prontuario = null;
 $consultas = [];
 
 
+/* salvar prontuario medico */
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'salvar_prontuario') {
     $id_animal_prontuario = (int)($_POST['id_animal'] ?? 0);
     $alergias = substr(trim($_POST['alergias'] ?? ''), 0, 255);
@@ -31,8 +34,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'salva
         $mensagem_erro = "Identificação do animal inválida.";
     } else {
         try {
-            $stmt_check = $pdo->prepare("SELECT id_protuario FROM prontuario 
-                                           WHERE id_animal = :id_animal");
+            $stmt_check = $pdo->prepare("SELECT id_prontuario FROM prontuario 
+                               WHERE id_animal = :id_animal");
             $stmt_check->execute([':id_animal' => $id_animal_prontuario]);
 
             if ($stmt_check->fetch()) {
@@ -52,6 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'salva
     }
 }
 
+/* exibir a ficha cadastral completa */
 $id_animal = (int)($_GET['id_animal'] ?? $_POST['id_animal'] ?? 0);
 if ($id_animal > 0) {
     try {
@@ -70,7 +74,7 @@ if ($id_animal > 0) {
             $prontuario = $stmt_pront->fetch(PDO::FETCH_ASSOC);
 
             $stmt_consultas = $pdo->prepare("
-                SELECT c.data_consulta, c.diagnostico, c.valor, v.nome AS vet_nome, v.crmv AS vet_crmv
+                SELECT c.id_consulta, c.data_consulta, c.diagnostico, c.valor, v.nome AS vet_nome, v.crmv AS vet_crmv
                 FROM consulta c JOIN veterinario v ON c.id_veterinario = v.id_veterinario
                 WHERE c.id_animal = :id_animal
                 ORDER BY c.data_consulta DESC, c.id_consulta DESC
@@ -229,13 +233,8 @@ try {
                             <th>Valor</th></tr>
                         </thead>
 
-                        <td>
-                            <a href="../pet/editar_pet.php?id_animal=<?= $p['id_animal'] ?>">Editar</a>
-                        </td>
-                        <td>
-                            <a href="../pet/excluir_pet.php?id_animal=<?= $p['id_animal'] ?>">Excluir</a>
-                        </td>
-                        
+                       
+                        <!-- retorna os valores do banco de dados de acordo com a tabela acima -->
                         <tbody>
                             <?php foreach ($consultas as $c): ?>
                                 <tr>
@@ -244,9 +243,17 @@ try {
                                     <td><code class="crmv-code"><?= htmlspecialchars($c['vet_crmv']) ?></code></td>
                                     <td><?= htmlspecialchars($c['diagnostico']) ?></td>
                                     <td><strong>R$ <?= number_format($c['valor'], 2, ',', '.') ?></strong></td>
+
+                                    <td>
+                                <a href="../consulta/excluir_consulta.php?id_consulta=<?= $c['id_consulta']?>">Excluir</a>
+                                    </td>
                                 </tr>
                             <?php endforeach; ?>
+                            
                         </tbody>
+
+                        
+
                     </table>
                 <?php endif; ?>
             <?php endif; ?>

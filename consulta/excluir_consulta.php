@@ -16,11 +16,10 @@ if (isset($_GET['id_consulta']) || isset($_POST['id_consulta'])) {
             $stmt->execute([':id_consulta' => (int)$id]);
 
         } catch (PDOException $e) {
-            die("Erro ao excluir pet do banco de dados: " . $e->getMessage());
+            die("Erro ao excluir consulta do banco de dados: " . $e->getMessage());
         }
     }
 }
 
-header("Location
--=: ../pet/historico_pet.php");
+header("Location-=: ../pet/historico_pet.php");
 exit;
